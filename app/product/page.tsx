@@ -12,6 +12,7 @@ import { HiMiniSpeakerWave, HiMiniSpeakerXMark } from 'react-icons/hi2';
 
 export default function ProductPage() {
   const { addItem } = useCart();
+  const [showCartPopup, setShowCartPopup] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isMuted1, setIsMuted1] = useState(true);
   const [isMuted2, setIsMuted2] = useState(true);
@@ -40,7 +41,8 @@ export default function ProductPage() {
     }
   };
 
-  const handleAddToCart = () => {
+
+  const handleAddToCart = React.useCallback(() => {
     addItem({
       id: featuredProduct.id,
       name: featuredProduct.name,
@@ -49,13 +51,14 @@ export default function ProductPage() {
       image: featuredProduct.image,
       slug: featuredProduct.slug,
     });
-  };
+    setShowCartPopup(true);
+    setTimeout(() => setShowCartPopup(false), 1800);
+  }, [addItem]);
 
-  const handleBuyNow = () => {
+  const handleBuyNow = React.useCallback(() => {
     handleAddToCart();
-    // Redirect to cart
     window.location.href = '/cart';
-  };
+  }, [handleAddToCart]);
 
   const products = [featuredProduct];
 
@@ -134,42 +137,13 @@ export default function ProductPage() {
 
   return (
     <div className="App overflow-x-hidden">
+      {showCartPopup && (
+        <div className="fixed top-8 right-8 z-50 bg-primary-green text-white px-6 py-3 rounded-xl shadow-lg font-bold animate-bounce">
+          Added to cart!
+        </div>
+      )}
       {/* Hero Carousel */}
-      <section className="carousel-container relative">
-        <Carousel
-          slidesPerView={1}
-          spaceBetween={0}
-          autoplay={true}
-          showNavigation={true}
-          showPagination={true}
-          showSlideCounter={false}
-        >
-          <div className="w-full">
-            <Link href="/product">
-              <Image
-                className="w-full h-full lg:h-[80vh] object-cover"
-                loading="lazy"
-                width={1500}
-                height={500}
-                src="/images/CN9.png"
-                alt="CareNest Product"
-              />
-            </Link>
-          </div>
-          <div className="w-full">
-            <Link href="/product">
-              <Image
-                className="w-full h-full lg:h-[80vh] object-cover"
-                loading="lazy"
-                width={1500}
-                height={600}
-                src="/images/CN10.png"
-                alt="CareNest Product"
-              />
-            </Link>
-          </div>
-        </Carousel>
-      </section>
+
 
       {/* Decorative Half Circle */}
       <Image
@@ -195,13 +169,15 @@ export default function ProductPage() {
           {featureBadges.map((badge, index) => (
             <div key={index} className="w-[50%] md:w-[20%] flex items-center justify-center">
               <div>
-                <Image
-                  className="mx-auto p-4 md:p-0"
-                  src={badge.image}
-                  alt={badge.text}
-                  width={100}
-                  height={100}
-                />
+                  <Image
+                    className="mx-auto p-4 md:p-0"
+                    src={badge.image}
+                    alt={badge.text}
+                    width={100}
+                    height={100}
+                    loading="lazy"
+                    draggable={false}
+                  />
                 <p
                   className="text-sm md:text-lg font-semibold pt-0 md:pt-4 text-center"
                   style={{ color: badge.color }}
@@ -431,7 +407,7 @@ export default function ProductPage() {
               <React.Fragment key={index}>
                 <div className="w-full md:w-[25%]">
                   <div className="flex items-center justify-center">
-                    <Image src={step.image} alt="step" width={200} height={200} />
+                    <Image src={step.image} alt={step.title} width={200} height={200} loading="lazy" draggable={false} />
                   </div>
                   <p className="text-sm lg:text-lg text-center font-semibold pt-4">
                     {step.title}
@@ -501,7 +477,7 @@ export default function ProductPage() {
               {/* Center - Gummy Image */}
               <div className="w-full md:w-[30%] rounded-full p-6 lg:p-2 flex items-center justify-center mt-0 md:mt-0">
                 <div className="w-full h-full flex items-center justify-center">
-                  <Image src="/images/image 9.png" alt="gummy" width={300} height={300} />
+                  <Image src="/images/image 9.png" alt="gummy" width={300} height={300} loading="lazy" draggable={false} />
                 </div>
               </div>
 

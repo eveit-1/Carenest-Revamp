@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
@@ -8,8 +8,15 @@ import { Button } from '@/components/ui/Button';
 import { formatPrice } from '@/lib/utils';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 
+
+import { Modal } from '@/components/ui/Modal';
+
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [user, setUser] = useState({ name: '', email: '', phone: '' });
 
   if (items.length === 0) {
     return (
@@ -24,6 +31,47 @@ export default function CartPage() {
       </div>
     );
   }
+
+  const handleCheckout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user.name || !user.email || !user.phone) {
+      alert('Please fill all user details.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, cartItems: items, total }),
+      });
+      if (res.ok) {
+        setOrderSuccess(true);
+        clearCart();
+        setCheckoutOpen(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data?.error || 'Order failed. Please try again.');
+      }
+    } catch (err) {
+      alert('Order failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ...existing code...
+  // Recommended products (demo: show featuredProduct)
+  const recommendedProducts = [
+    {
+      id: '1',
+      name: 'CareNest Multivitamin Gummies',
+      price: 999,
+      image: '/images/products/carenest.webp',
+      slug: 'careNest-multivitamin',
+    },
+
+  ];
 
   return (
     <div className="py-12 md:py-16 lg:py-20 px-4">
@@ -82,6 +130,23 @@ export default function CartPage() {
           ))}
         </div>
 
+        {/* Recommended Products Section */}
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-4 text-primary-green">Recommended for you</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {recommendedProducts.map(product => (
+              <div key={product.id} className="bg-white rounded-xl shadow-md p-4 flex flex-col items-center">
+                <Image src={product.image} alt={product.name} width={120} height={120} className="rounded-lg mb-2" />
+                <h3 className="font-bold text-center mb-1">{product.name}</h3>
+                <p className="text-[#E94C60] font-semibold mb-2">₹{product.price}</p>
+                <Link href={`/products/${product.slug}`} className="w-full">
+                  <Button className="w-full bg-primary-green text-white">View Product</Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="border-t pt-6">
           <div className="flex justify-between items-center mb-6">
             <span className="text-2xl font-bold">Total:</span>
@@ -93,13 +158,16 @@ export default function CartPage() {
                 Continue Shopping
               </Button>
             </Link>
-            <Button className="flex-1">Proceed to Checkout</Button>
+            <Link href="/checkout" className="flex-1">
+              <Button className="w-full">Proceed to Checkout</Button>
+            </Link>
             <Button variant="secondary" onClick={clearCart} className="flex-1">
               Clear Cart
             </Button>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

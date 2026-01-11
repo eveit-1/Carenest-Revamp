@@ -17,7 +17,8 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 export function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] =
+    useState<'idle' | 'success' | 'error'>('idle');
 
   const {
     register,
@@ -33,12 +34,19 @@ export function ContactSection() {
     setSubmitStatus('idle');
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('Form submitted:', data);
-      setSubmitStatus('success');
-      reset();
-    } catch (error) {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setSubmitStatus('success');
+        reset();
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -48,102 +56,119 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="contact-main flex mt-0 md:mt-10 lg:mt-20 pl-10 lg:pl-20 pt-0 md:pt-10 lg:pt-20 -mb-20"
+      className="max-w-7xl mx-auto px-6 lg:px-10 py-20"
     >
-      <div className="w-full lg:w-50% lg:my-0 pl-0 pr-10 lg:pr-40">
-        <div className="pt-10">
-          <h2 className="mr-2 font-bold text-4xl lg:text-5xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+        {/* LEFT – FORM */}
+        <div>
+          <h2 className="text-3xl md:text-5xl font-bold">
             Contact <span className="text-[#9AB898]">Us</span>
           </h2>
-          <p className="text-sm lg:text-lg font-semibold lg:font-regular text-gray-500 pt-4">
-            Helping you is our top most priority.
-          </p>
-          <p className="text-sm lg:text-lg font-semibold lg:font-medium text-gray-500 mt-6 mb-0">
-            We are ready to solve all your genuine queries within 48 hours.
-          </p>
-        </div>
 
-        <div className="pb-20 md:pb-20">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="ml-auto lg:flex w-full mx-8">
-              <div className="text-centre lg:w-1/2 mt-6 lg:mr-3">
+          <p className="mt-4 text-gray-600 text-sm md:text-lg">
+            Helping you is our topmost priority. We usually respond within 48 hours.
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-10 space-y-6">
+
+            {/* Row 1 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <input
                   type="text"
-                  className="p-2 rounded w-full h-10 lg:h-14 text-sm md:text-[1rem] border-2 border-[#E94C60]"
                   placeholder="Your Name"
                   {...register('name')}
+                  className="w-full h-12 px-4 rounded-lg border border-[#E94C60] focus:outline-none focus:ring-2 focus:ring-[#E94C60]/40"
                 />
                 {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.name.message}
+                  </p>
                 )}
               </div>
-              <div className="lg:w-1/2 mt-6 lg:ml-3">
+
+              <div>
                 <input
                   type="email"
-                  className="p-2 rounded w-full text-sm md:text-[1rem] h-10 lg:h-14 border-2 border-[#E94C60]"
-                  placeholder="Email id"
+                  placeholder="Email Address"
                   {...register('email')}
+                  className="w-full h-12 px-4 rounded-lg border border-[#E94C60] focus:outline-none focus:ring-2 focus:ring-[#E94C60]/40"
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
             </div>
-            <div className="ml-auto lg:flex w-full m-8">
-              <div className="lg:w-1/2 mt-6 lg:mr-3">
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <input
                   type="tel"
-                  className="p-2 rounded w-full h-10 lg:h-14 text-sm md:text-[1rem] border-2 border-[#E94C60]"
-                  placeholder="Phone Number (e.g: 9876543210)"
+                  placeholder="Phone Number"
                   {...register('phone')}
+                  className="w-full h-12 px-4 rounded-lg border border-[#E94C60] focus:outline-none focus:ring-2 focus:ring-[#E94C60]/40"
                 />
                 {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.phone.message}
+                  </p>
                 )}
               </div>
-              <div className="lg:w-1/2 mt-6 lg:ml-3">
+
+              <div>
                 <textarea
-                  rows={6}
-                  className="p-2 pt-4 rounded w-full h-10 lg:h-14 text-sm md:text-[1rem] border-2 border-[#E94C60]"
-                  placeholder="Write something..."
+                  rows={4}
+                  placeholder="Write your message..."
                   {...register('message')}
+                  className="w-full px-4 py-3 rounded-lg border border-[#E94C60] focus:outline-none focus:ring-2 focus:ring-[#E94C60]/40 resize-none"
                 />
                 {errors.message && (
-                  <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.message.message}
+                  </p>
                 )}
               </div>
             </div>
-            <div className="text-center">
-              {submitStatus === 'success' && (
-                <div className="p-4 bg-green-100 text-green-700 rounded-lg mb-4">
-                  Carenest will get in touch with you shortly.
-                </div>
-              )}
-              {submitStatus === 'error' && (
-                <div className="p-4 bg-red-100 text-red-700 rounded-lg mb-4">
-                  Something went wrong. Please try again.
-                </div>
-              )}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="text-white m-auto text-lg font-semibold lg:font-medium rounded-lg px-6 py-2 lg:px-10 bg-[#9AB898] mx-auto lg:mx-4 mt-0 lg:mt-8 border-2 h-12 lg:h-14"
-              >
-                {isSubmitting ? 'Submitted' : 'Submit'}
-              </button>
-            </div>
+
+            {/* Status */}
+            {submitStatus === 'success' && (
+              <div className="p-4 bg-green-100 text-green-700 rounded-lg">
+                CareNest will get in touch with you shortly.
+              </div>
+            )}
+
+            {submitStatus === 'error' && (
+              <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+                Something went wrong. Please try again.
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-4 inline-flex items-center justify-center px-10 h-12 rounded-lg bg-[#9AB898] text-white font-semibold hover:opacity-90 transition disabled:opacity-70"
+            >
+              {isSubmitting ? 'Submitting…' : 'Submit'}
+            </button>
           </form>
         </div>
-      </div>
-      <div className="contact relative hidden md:block w-[70%] h-full pt-10 lg:pr-0 pl-0 lg:pl-40 bg-no-repeat">
-        <Image
-          loading="lazy"
-          className="w-[80%] h-[50%]"
-          width={100}
-          height={200}
-          src="/images/image 13.svg"
-          alt=""
-        />
+
+        {/* RIGHT – IMAGE */}
+        <div className="hidden lg:flex justify-center">
+          <Image
+            src="/images/image 13.svg"
+            alt="Contact illustration"
+            width={420}
+            height={420}
+            className="object-contain"
+            loading="lazy"
+          />
+        </div>
       </div>
     </section>
   );

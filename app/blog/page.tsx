@@ -10,78 +10,89 @@ import { ExploreSection } from '@/components/sections/ExploreSection';
 import { blogPosts, featuredPosts } from '@/lib/blog-posts';
 
 export default function BlogPage() {
-  const [showModal, setShowModal] = useState(false);
-  const [filterValue, setFilterValue] = useState<typeof blogPosts>([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [filteredPosts, setFilteredPosts] = useState<typeof blogPosts>([]);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchValue = event.target.value;
-    const filterArray = blogPosts.filter((post) => {
-      return post.title.toLowerCase().includes(searchValue.toLowerCase());
-    });
-    if (searchValue === '') {
-      setFilterValue([]);
-    } else {
-      setFilterValue(filterArray);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toLowerCase();
+
+    if (!value) {
+      setFilteredPosts([]);
+      return;
     }
+
+    setFilteredPosts(
+      blogPosts.filter((post) =>
+        post.title.toLowerCase().includes(value)
+      )
+    );
   };
 
   return (
-    <div className="App">
-      {/* Search Functionality */}
-      <div className="px-10 lg:px-20 mt-10 md:mr-4 inline-flex">
-        <div>
+    <div className="overflow-x-hidden">
+
+      {/* Search Section */}
+      <div className="px-6 md:px-10 lg:px-20 mt-10">
+        <div className="relative inline-flex items-start gap-4">
+          
+          {/* Search Button */}
           <button
-            className="float-left w-20 h-20"
-            onClick={() => setShowModal(true)}
-            aria-label="Search"
+            onClick={() => setShowSearch(true)}
+            aria-label="Search blogs"
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-red text-white hover:opacity-90 transition"
           >
-            <AiOutlineSearch className="rounded-full w-12 h-12 p-2 bg-primary-red text-white" />
+            <AiOutlineSearch className="text-2xl" />
           </button>
-          {showModal ? (
-            <>
-              <div className="flex bg-white rounded-lg ml-2 mt-4 float-left">
-                <div className="rounded-lg flex flex-inline pt-1 pl-1">
-                  <input
-                    type="text"
-                    placeholder="Search ...."
-                    onChange={handleSearch}
-                    className="h-8 pl-2"
-                  />
-                  <IoClose
-                    className="text-gray-600 text-3xl text-right cursor-pointer pt-1"
-                    onClick={() => {
-                      setShowModal(false);
-                      setFilterValue([]);
-                    }}
-                  />
-                </div>
-                {filterValue.length !== 0 && (
-                  <div className="rounded-lg border-2">
-                    {filterValue.map((e, i) => {
-                      return (
-                        <div
-                          key={`searchResult${i}`}
-                          className="w-full p-2 hover:bg-primary-green"
-                        >
-                          <Link href={`/blog/post/${e.slug}`}>{e.title}</Link>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+
+          {/* Search Input */}
+          {showSearch && (
+            <div className="relative bg-white rounded-lg shadow-md p-2 w-72">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Search blogs..."
+                  onChange={handleSearch}
+                  className="flex-1 h-9 px-2 text-sm border border-gray-300 rounded outline-none focus:border-primary-red"
+                />
+                <IoClose
+                  className="text-xl cursor-pointer text-gray-600 hover:text-black"
+                  onClick={() => {
+                    setShowSearch(false);
+                    setFilteredPosts([]);
+                  }}
+                />
               </div>
-            </>
-          ) : null}
+
+              {/* Search Results */}
+              {filteredPosts.length > 0 && (
+                <div className="mt-2 max-h-56 overflow-y-auto border rounded">
+                  {filteredPosts.map((post, i) => (
+                    <Link
+                      key={i}
+                      href={`/blog/post/${post.slug}`}
+                      className="block px-3 py-2 text-sm hover:bg-primary-green transition"
+                      onClick={() => {
+                        setShowSearch(false);
+                        setFilteredPosts([]);
+                      }}
+                    >
+                      {post.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Featured Posts Section */}
+      {/* Featured Posts */}
       <FeaturedPostsSection posts={featuredPosts} />
 
-      {/* Features Section */}
+      {/* Blog Features */}
       <BlogFeaturesSection posts={featuredPosts} />
 
-      {/* Explore Section */}
+      {/* Explore Blogs */}
       <ExploreSection posts={blogPosts.slice(0, 4)} />
     </div>
   );
