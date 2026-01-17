@@ -21,7 +21,11 @@ interface CategoriesPostCardProps {
 export function CategoriesPostCard({ post }: CategoriesPostCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[date.getMonth()];
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month} ${day}, ${year}`;
   };
 
   return (
@@ -44,7 +48,7 @@ export function CategoriesPostCard({ post }: CategoriesPostCardProps) {
         <p className="align-middle text-black text-sm text-shadow font-medium">
           {post.excerpt}
           <Link href={`/blog/post/${post.slug}`}>
-            <span className="text-primary-red font-semibold ml-3 mt-2">Read More ➡️</span>
+            <span className="text-[#E94C60] font-semibold ml-3 mt-2">Read More ➡️</span>
           </Link>
         </p>
         <p className="text-black mb-4 mt-4 bottom-2 font-semibold text-xs">

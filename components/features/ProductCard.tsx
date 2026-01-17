@@ -3,10 +3,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { useCart } from '@/context/CartContext';
 import { Product } from '@/types';
-import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -15,7 +13,8 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     addItem({
       id: product.id,
       name: product.name,
@@ -27,31 +26,36 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/products/${product.slug}`} className="block">
-      <div className="relative overflow-hidden rounded-md bg-white shadow-md hover:shadow-lg transition-shadow">
-        <div className="relative w-full h-64">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
+    <div className="w-[90%] mx-auto max-w-[250px] bg-[#E94C60] h-auto mb-6 cursor-pointer hover:shadow-lg rounded-lg flex flex-col">
+      <Link href={`/products/${product.slug}`}>
+        <div className="w-full relative">
+          <div className="w-full flex flex-row -mt-6 md:-mt-10">
+            <div className="w-[100%]">
+              <Image
+                alt="productimage"
+                src={product.image}
+                width={300}
+                height={300}
+                className=""
+                loading="lazy"
+              />
+            </div>
+          </div>
+          <div className="bg-gray-100 w-full text-center py-4">
+            <h3 className="text-md md:text-xl line-clamp-2 font-semibold pb-2">
+              {product.name}
+            </h3>
+            <h3 className="text-md md:text-xl text-[#E94C60] line-clamp-2 font-semibold">
+              MRP {product.price}/-
+            </h3>
+          </div>
+          <div className="flex items-center justify-center py-4">
+            <div className="text-white text-xl" onClick={handleAddToCart}>
+              Add to Cart
+            </div>
+          </div>
         </div>
-        <div className="p-4">
-          <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-          <h3 className="text-lg text-gray-700 mb-4">{formatPrice(product.price)}</h3>
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              handleAddToCart();
-            }}
-            className="w-full"
-          >
-            Add to Cart
-          </Button>
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

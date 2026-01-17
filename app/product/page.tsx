@@ -343,49 +343,68 @@ export default function ProductPage() {
             <Image
               src="/images/bg11.png"
               alt=""
-              width={1920}
-              height={800}
-              className="w-full h-[100vh] md:h-[85vh] lg:h-[80vh] object-cover"
+              width={1465}
+              height={525}
+              className="w-[100%] h-[100vh] md:h-[85vh] lg:h-[80vh]"
+              loading="lazy"
             />
           </div>
-          <div className="absolute w-full -top-4 m-auto text-center">
-            <div className="w-full lg:w-[80%] mx-auto text-black overflow-x-hidden relative z-0">
-              <div className="w-[90%] mx-auto max-w-[250px] bg-white h-auto mb-6 cursor-pointer hover:shadow-lg rounded-lg flex flex-col">
-                <div className="w-full relative">
-                  <div className="w-full flex flex-row -mt-6 md:-mt-10">
-                    <div className="w-full">
-                      <Image
-                        src={featuredProduct.image}
-                        width={300}
-                        height={300}
-                        alt="productimage"
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-gray-100 w-full text-center py-4">
-                    <h3 className="text-md md:text-xl line-clamp-2 font-semibold pb-2">
-                      {featuredProduct.name}
-                    </h3>
-                    <h3 className="text-md md:text-xl text-[#E94C60] line-clamp-2 font-semibold">
-                      MRP {formatPrice(featuredProduct.price)}
-                    </h3>
-                  </div>
-                  <div className="flex items-center justify-center py-4 gap-2">
+          <div className="absolute w-full top-0 left-0 h-full flex items-center justify-between px-4 md:px-10 lg:px-20">
+            {/* Left Side - Product Card */}
+            <div className="w-full md:w-[45%] lg:w-[35%] flex justify-center md:justify-start">
+              <div className="bg-white rounded-2xl shadow-xl p-6 max-w-[350px] w-full">
+                {/* Product Image with Pink Background */}
+                <div className="bg-[#E94C60] rounded-t-xl -mx-6 -mt-6 px-8 py-8 flex items-center justify-center relative">
+                  <Image
+                    src={featuredProduct.image}
+                    width={250}
+                    height={250}
+                    alt="productimage"
+                    className="w-full max-w-[200px] drop-shadow-2xl"
+                  />
+                </div>
+                
+                {/* Product Details */}
+                <div className="text-center mt-6">
+                  <h3 className="text-xl md:text-2xl font-bold text-black mb-3">
+                    {featuredProduct.name}
+                  </h3>
+                  <p className="text-2xl md:text-3xl font-bold text-[#E94C60] mb-6">
+                    MRP {formatPrice(featuredProduct.price)}/-
+                  </p>
+                  
+                  {/* Buttons */}
+                  <div className="flex gap-3 justify-center">
                     <button
                       onClick={handleBuyNow}
-                      className="bg-[#9AB898] text-white px-6 py-2 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors"
+                      className="bg-[#9AB898] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-opacity-90 transition-colors shadow-md"
                     >
                       Buy now
                     </button>
                     <button
                       onClick={handleAddToCart}
-                      className="bg-[#9AB898] text-white px-6 py-2 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-colors"
+                      className="bg-[#9AB898] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-opacity-90 transition-colors shadow-md"
                     >
                       Add to cart
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Right Side - Coming Soon */}
+            <div className="hidden md:flex w-[50%] lg:w-[55%] items-center justify-center">
+              <div className="text-center">
+                <h2 className="text-3xl lg:text-5xl font-bold text-black mb-8">
+                  Skin Care & Hair Care
+                </h2>
+                <Image
+                  src="/images/coming-soon.png"
+                  alt="Coming Soon"
+                  width={600}
+                  height={400}
+                  className="w-full max-w-[500px]"
+                />
               </div>
             </div>
           </div>

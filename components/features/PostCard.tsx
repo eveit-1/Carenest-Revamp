@@ -38,7 +38,7 @@ export function PostCard({ post }: PostCardProps) {
             <p className="pr-5 align-middle text-black text-sm lg:text-md text-shadow font-medium">
               {post.excerpt.slice(0, 150)}
               <Link href={`/blog/post/${post.slug}`}>
-                <span className="text-primary-red font-semibold">Read more</span>
+                <span className="text-[#E94C60] font-semibold">Read more</span>
               </Link>
             </p>
           </div>

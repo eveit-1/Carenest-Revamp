@@ -169,6 +169,6 @@ export const featuredProduct = {
   id: '1',
   name: 'CareNest Multivitamin Gummies',
   price: 999,
-  image: '/images/products/carenest.webp',
+  image: '/images/gummy-box.png',
   slug: 'careNest-multivitamin',
 };

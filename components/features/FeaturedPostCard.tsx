@@ -25,7 +25,7 @@ export function FeaturedPostCard({ post }: FeaturedPostCardProps) {
           {post.title}
         </h3>
         <p className="mb-4 text-md md:mr-4 md:text-xl">{post.excerpt}</p>
-        <button className="text-xl text-white bg-primary-green px-6 py-2 rounded mt-6 lg:mt-10 hover:bg-opacity-90 transition-colors">
+        <button className="text-xl text-white bg-[#9AB898] px-6 py-2 rounded mt-6 lg:mt-10">
           <Link href={`/blog/post/${post.slug}`}>Read More</Link>
         </button>
       </div>
