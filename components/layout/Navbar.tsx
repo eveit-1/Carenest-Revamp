@@ -14,40 +14,42 @@ export function Navbar() {
   const { itemCount } = useCart();
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/80 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* Logo (Left) */}
-          <Link href="/" className="flex items-center">
+    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 border-b border-gray-200">
+      
+      {/* Wider container */}
+      <div className="max-w-[1400px] mx-auto px-2 lg:px-4">
+        <div className="flex items-center justify-between h-20">
+
+          {/* Logo (More Left + Bigger) */}
+          <Link href="/" className="flex items-center ml-0">
             <Image
               src="/images/CN6.png"
               alt="CareNest"
-              width={150}
-              height={52}
-              className="h-12 w-auto"
+              width={190}
+              height={70}
+              className="h-16 w-auto"
               priority
             />
           </Link>
 
-          {/* Right Section (Nav + Cart) */}
-          <div className="flex items-center gap-8">
-            
+          {/* Right Section */}
+          <div className="flex items-center gap-12">
+
             {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-10">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`relative text-sm font-semibold transition-colors
+                    className={`relative text-base font-semibold transition-colors
                       ${isActive ? 'text-black' : 'text-gray-600 hover:text-black'}
                     `}
                   >
                     {item.label}
                     <span
-                      className={`absolute left-0 -bottom-1 h-[3px] rounded-full bg-primary-red transition-all
+                      className={`absolute left-0 -bottom-2 h-[3px] rounded-full bg-primary-red transition-all
                         ${isActive ? 'w-full' : 'w-0 hover:w-full'}
                       `}
                     />
@@ -56,7 +58,7 @@ export function Navbar() {
               })}
             </div>
 
-            {/* Cart (acts like nav item) */}
+            {/* Cart */}
             <Link
               href="/cart"
               className="relative flex items-center text-gray-700 hover:text-black transition"
@@ -65,9 +67,9 @@ export function Navbar() {
               <Image
                 src="/images/shoppigcard (2).png"
                 alt="shopping cart"
-                width={26}
-                height={26}
-                className="h-6 w-6"
+                width={30}
+                height={30}
+                className="h-7 w-7"
               />
               {itemCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -82,7 +84,7 @@ export function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
-              {isOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+              {isOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
             </button>
           </div>
         </div>
@@ -102,7 +104,7 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`block rounded-lg px-4 py-3 text-sm font-semibold transition
+                className={`block rounded-lg px-4 py-3 text-base font-semibold transition
                   ${
                     isActive
                       ? 'bg-gray-100 text-black'
@@ -119,13 +121,13 @@ export function Navbar() {
           <Link
             href="/cart"
             onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-base font-semibold text-gray-700 hover:bg-gray-50"
           >
             <Image
               src="/images/shoppigcard (2).png"
               alt="shopping cart"
-              width={22}
-              height={22}
+              width={24}
+              height={24}
             />
             Shopping Cart
             {itemCount > 0 && (

@@ -5,7 +5,6 @@ import { Modal } from '@/components/ui/Modal';
 import { ProgressBar, Step } from '@/components/ui/ProgressBar';
 import { FcInfo } from 'react-icons/fc';
 import { GiCheckMark } from 'react-icons/gi';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 /* ---------------- DATA ---------------- */
@@ -45,44 +44,27 @@ export default function AppointmentPage() {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
-  const [age, setAge] = useState<number | null>(null);
   const [gender, setGender] = useState('');
   const [email, setEmail] = useState('');
   const [concern, setConcern] = useState('');
   const [userConcern, setUserConcern] = useState('');
 
-  // NEW: Prescription Upload
   const [prescriptionFiles, setPrescriptionFiles] = useState<FileList | null>(null);
 
   const [dateTime, setDateTime] = useState<Date | null>(null);
   const [eventInfo, setEventInfo] = useState<any>(null);
 
   const [video] = useState(true);
-  const [newUser] = useState(true);
+  const [newUser, setNewUser] = useState(true);
 
   const [amount, setAmount] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
 
+  const [checkingUser, setCheckingUser] = useState(false);
+
   /* ---------------- HELPERS ---------------- */
-
-  const calcAge = (dob: string) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let years = today.getFullYear() - birth.getFullYear();
-    if (
-      today.getMonth() < birth.getMonth() ||
-      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-    ) {
-      years--;
-    }
-    return years;
-  };
-
-  useEffect(() => {
-    if (dob) setAge(calcAge(dob));
-  }, [dob]);
 
   const baseAmount = () => {
     const c = concerns.find((x) => x.title === concern);
@@ -92,33 +74,118 @@ export default function AppointmentPage() {
 
   useEffect(() => {
     setAmount(baseAmount());
-  }, [concern]);
+  }, [concern, newUser]);
+
+  /* ---------------- CHECK USER ---------------- */
+
+  const checkUserInDb = async () => {
+    if (phone.length !== 10) return;
+  
+    try {
+      setCheckingUser(true);
+  
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'find',
+          phone,
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (data.user) {
+        setName(data.user.name || '');
+        setDob(data.user.dob || '');
+        setGender(data.user.gender || '');
+        setEmail(data.user.email || '');
+        setNewUser(false);
+      } else {
+        setName('');
+        setDob('');
+        setGender('');
+        setEmail('');
+        setNewUser(true);
+      }
+  
+      setStep(2);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCheckingUser(false);
+    }
+  };
+  
 
   /* ---------------- ACTIONS ---------------- */
 
-  const checkUserInDb = () => {
-    if (phone.length === 10) setStep(2);
-  };
-
   const handleTimeSelect = (date: Date) => {
+    const end = new Date(date);
+    end.setMinutes(end.getMinutes() + 30); // 30 min meeting
+  
+    const title = encodeURIComponent('CareNest Consultation');
+    const details = encodeURIComponent('Online consultation via Google Meet');
+    const location = encodeURIComponent('Google Meet');
+  
+    const startISO = date.toISOString().replace(/-|:|\.\d+/g, '');
+    const endISO = end.toISOString().replace(/-|:|\.\d+/g, '');
+  
+    const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${startISO}/${endISO}`;
+  
+    const meetLink = `https://meet.google.com/${Math.random().toString(36).substring(2, 10)}`;
+  
     setDateTime(date);
     setEventInfo({
       startTime: date,
-      meetingLink: `https://meet.carenest.in/${Math.random().toString(36).slice(2)}`,
+      endTime: end,
+      meetingLink: meetLink,
+      calendarUrl,
     });
+  
     setModalOpen(false);
   };
-
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!name || !dob || !gender || !concern || !dateTime) {
       alert('Please complete all required fields.');
       return;
     }
 
     try {
+      let userId: string | null = null;
+
+      // 🆕 Register user if new
+      if (newUser) {
+        const registerRes = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'register',
+            name,
+            phone,
+            dob,
+            gender,
+            email,
+          }),
+        });
+
+        const registerData = await registerRes.json();
+
+        if (!registerRes.ok) {
+          alert(registerData?.error || 'Failed to register user');
+          return;
+        }
+
+        userId = registerData.userId;
+      }
+
+      // 📅 Create appointment
       const formData = new FormData();
+      formData.append('user_id', userId || '');
       formData.append('name', name);
       formData.append('phone', phone);
       formData.append('email', email);
@@ -130,12 +197,11 @@ export default function AppointmentPage() {
       formData.append('meeting_link', eventInfo?.meetingLink || '');
       formData.append('amount', amount.toString());
 
-
-      // Require prescription upload
       if (!prescriptionFiles || prescriptionFiles.length === 0) {
         alert('Please upload at least one prescription file.');
         return;
       }
+
       for (let i = 0; i < prescriptionFiles.length; i++) {
         formData.append('prescriptions', prescriptionFiles[i]);
       }
@@ -149,10 +215,12 @@ export default function AppointmentPage() {
         setShowResponse(true);
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data?.error || 'Failed to book appointment. Please try again.');
+        alert(data?.error || 'Failed to book appointment.');
       }
+
     } catch (err) {
-      alert('An error occurred while booking appointment.');
+      console.error(err);
+      alert('An error occurred.');
     }
   };
 
@@ -200,17 +268,19 @@ export default function AppointmentPage() {
             <input
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              maxLength={10}
               className={`${inputClass} max-w-sm mx-auto`}
               placeholder="10-digit mobile number"
             />
+
             <button
               type="button"
               onClick={checkUserInDb}
-              disabled={phone.length !== 10}
+              disabled={phone.length !== 10 || checkingUser}
               className="bg-primary-green text-white px-8 py-2 rounded-lg font-semibold disabled:opacity-50"
             >
-              Continue
+              {checkingUser ? 'Checking...' : 'Continue'}
             </button>
           </div>
         )}
@@ -223,10 +293,12 @@ export default function AppointmentPage() {
                 <label className="font-bold">Name</label>
                 <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} />
               </div>
+
               <div>
                 <label className="font-bold">Date of Birth</label>
                 <input type="date" className={inputClass} value={dob} onChange={(e) => setDob(e.target.value)} />
               </div>
+
               <div>
                 <label className="font-bold">Gender</label>
                 <select className={inputClass} value={gender} onChange={(e) => setGender(e.target.value)}>
@@ -235,6 +307,7 @@ export default function AppointmentPage() {
                   <option>Female</option>
                 </select>
               </div>
+
               <div>
                 <label className="font-bold">Email (optional)</label>
                 <input className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -272,7 +345,6 @@ export default function AppointmentPage() {
                 </select>
               </div>
 
-              {/* Prescription Upload */}
               <div>
                 <label className="font-bold flex items-center gap-2">
                   Upload your prescription <span className="text-red-500">*</span>
@@ -286,11 +358,6 @@ export default function AppointmentPage() {
                   onChange={(e) => setPrescriptionFiles(e.target.files)}
                   required
                 />
-                {prescriptionFiles && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    {prescriptionFiles.length} file(s) selected
-                  </p>
-                )}
               </div>
 
               <div>
@@ -332,9 +399,11 @@ export default function AppointmentPage() {
               >
                 Select Time Slot
               </button>
+
               <p className="text-sm text-gray-600">
                 {dateTime ? dateTime.toLocaleString() : 'No slot selected'}
               </p>
+
               <p className="text-xl font-bold text-primary-red">₹ {amount}</p>
             </div>
 
@@ -351,60 +420,47 @@ export default function AppointmentPage() {
       </form>
 
       {/* TIME MODAL */}
-      <Modal modalOpen={modalOpen} setOpenModal={setModalOpen}>
-        <div className="bg-white p-6 rounded-xl">
-          <h3 className="font-bold mb-4">Choose a Time</h3>
-          {Array.from({ length: 5 }).map((_, i) => {
-            const d = new Date();
-            d.setDate(d.getDate() + i + 1);
-            d.setHours(10, 0, 0, 0);
-            return (
-              <button
-                key={i}
-                onClick={() => handleTimeSelect(d)}
-                className="block w-full mb-2 px-4 py-2 border rounded hover:bg-primary-green hover:text-white"
-              >
-                {d.toLocaleString()}
-              </button>
-            );
-          })}
-        </div>
-      </Modal>
+<Modal modalOpen={modalOpen} setOpenModal={setModalOpen}>
+  <div className="bg-white p-6 rounded-xl">
+    <h3 className="font-bold mb-4">Choose a Time</h3>
+
+    {Array.from({ length: 5 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i + 1);
+      d.setHours(10, 0, 0, 0);
+
+      return (
+        <button
+          key={i}
+          onClick={() => handleTimeSelect(d)}
+          className="block w-full mb-2 px-4 py-2 border rounded hover:bg-primary-green hover:text-white"
+        >
+          {d.toLocaleString()}
+        </button>
+      );
+    })}
+  </div>
+</Modal>
+
 
       {/* SUCCESS MODAL */}
+
+
       <Modal modalOpen={showResponse} setOpenModal={() => router.push('/')}>
         <div className="bg-white rounded-2xl p-8 text-center max-w-md mx-auto">
           <GiCheckMark size={60} className="mx-auto text-green-500 mb-4" />
           <h3 className="text-2xl font-bold">Appointment Confirmed!</h3>
+          <a
+  href={eventInfo?.calendarUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block mt-4 text-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold"
+>
+  📅 Add to Google Calendar
+</a>
           <p className="text-gray-600 mt-2">
             Your consultation is scheduled successfully.
           </p>
-
-          <div className="bg-gray-50 rounded-xl p-4 mt-6 text-left">
-            <p className="text-sm">
-              <b>Date & Time:</b><br />
-              {eventInfo?.startTime && new Date(eventInfo.startTime).toLocaleString()}
-            </p>
-            <p className="text-sm mt-3 break-all">
-              <b>Meeting Link:</b><br />
-              <span
-                className="text-blue-600 underline cursor-pointer"
-                onClick={() => {
-                  navigator.clipboard.writeText(eventInfo?.meetingLink);
-                  alert('Meeting link copied!');
-                }}
-              >
-                {eventInfo?.meetingLink}
-              </span>
-            </p>
-          </div>
-
-          <button
-            onClick={() => router.push('/')}
-            className="mt-6 px-6 py-2 rounded-lg bg-primary-green text-white font-semibold"
-          >
-            Go Home
-          </button>
         </div>
       </Modal>
     </div>
