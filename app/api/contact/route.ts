@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   const { name, email, phone, message } = await req.json();
+
+  // Dynamic import to avoid build issues
+  const nodemailer = (await import('nodemailer')).default;
 
   // Configure transporter
   const transporter = nodemailer.createTransport({
