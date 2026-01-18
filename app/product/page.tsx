@@ -337,78 +337,104 @@ export default function ProductPage() {
           </nav>
         </div>
 
-        {/* Product Display Section */}
-        <div className="relative my-10 pb-28 md:pb-52 lg:pb-20 overflow-hidden">
-          <div className="">
-            <Image
-              src="/images/bg11.png"
-              alt=""
-              width={1465}
-              height={525}
-              className="w-[100%] h-[100vh] md:h-[85vh] lg:h-[80vh]"
-              loading="lazy"
-            />
-          </div>
-          <div className="absolute w-full top-0 left-0 h-full flex items-center justify-between px-4 md:px-10 lg:px-20">
-            {/* Left Side - Product Card */}
-            <div className="w-full md:w-[45%] lg:w-[35%] flex justify-center md:justify-start">
-              <div className="bg-white rounded-2xl shadow-xl p-6 max-w-[350px] w-full">
-                {/* Product Image with Pink Background */}
-                <div className="bg-[#E94C60] rounded-t-xl -mx-6 -mt-6 px-8 py-8 flex items-center justify-center relative">
-                  <Image
-                    src={featuredProduct.image}
-                    width={250}
-                    height={250}
-                    alt="productimage"
-                    className="w-full max-w-[200px] drop-shadow-2xl"
-                  />
-                </div>
-                
-                {/* Product Details */}
-                <div className="text-center mt-6">
-                  <h3 className="text-xl md:text-2xl font-bold text-black mb-3">
-                    {featuredProduct.name}
-                  </h3>
-                  <p className="text-2xl md:text-3xl font-bold text-[#E94C60] mb-6">
-                    MRP {formatPrice(featuredProduct.price)}/-
-                  </p>
-                  
-                  {/* Buttons */}
-                  <div className="flex gap-3 justify-center">
-                    <button
-                      onClick={handleBuyNow}
-                      className="bg-[#9AB898] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-opacity-90 transition-colors shadow-md"
-                    >
-                      Buy now
-                    </button>
-                    <button
-                      onClick={handleAddToCart}
-                      className="bg-[#9AB898] text-white px-6 py-3 rounded-xl text-base font-semibold hover:bg-opacity-90 transition-colors shadow-md"
-                    >
-                      Add to cart
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+ {/* Product Display Section */}
+<div className="relative my-10 pb-28 md:pb-52 lg:pb-20 overflow-hidden">
 
-            {/* Right Side - Coming Soon */}
-            <div className="hidden md:flex w-[50%] lg:w-[55%] items-center justify-center">
-              <div className="text-center">
-                <h2 className="text-3xl lg:text-5xl font-bold text-black mb-8">
-                  Skin Care & Hair Care
-                </h2>
-                <Image
-                  src="/images/coming-soon.png"
-                  alt="Coming Soon"
-                  width={600}
-                  height={400}
-                  className="w-full max-w-[500px]"
-                />
-              </div>
+  {/* Background Image */}
+  <div>
+    <Image
+      src="/images/bg11.png"
+      alt=""
+      width={1465}
+      height={525}
+      className="w-full h-[100vh] md:h-[85vh] lg:h-[80vh]"
+      loading="lazy"
+    />
+  </div>
+
+  {/* Content Overlay */}
+  <div className="absolute inset-0 flex items-start justify-center pt-20 px-6 md:px-16">
+
+    {/* Left - Product Card */}
+<div className="flex justify-center">
+
+  <div>
+    <div className="z-0 w-full py-2 text-center pb-6 md:pb-10 text-black"></div>
+
+    {/* Card */}
+    <div className="w-full max-w-[250px] bg-[#E94C60] h-auto mb-6 cursor-pointer hover:shadow-lg rounded-lg flex flex-col">
+      <a href="/products/careNest-multivitamin">
+
+        <div className="w-full relative">
+
+          {/* Product Image */}
+          <div className="w-full flex flex-row -mt-10 md:-mt-14">
+            <div className="w-[80%] mx-auto">
+              <Image
+                src={featuredProduct.image}
+                alt="productimage"
+                width={300}
+                height={300}
+                loading="lazy"
+                className="object-contain"
+              />
             </div>
           </div>
+
+          {/* Product Info */}
+          <div className="bg-gray-100 w-full text-center py-4 rounded-b-lg">
+            <h3 className="text-md md:text-xl line-clamp-2 font-semibold pb-2">
+              {featuredProduct.name}
+            </h3>
+
+            <h3 className="text-md md:text-xl text-[#E94C60] line-clamp-2 font-semibold">
+              {formatPrice(featuredProduct.price)}
+            </h3>
+          </div>
+
         </div>
+      </a>
+    </div>
+
+    {/* Buttons */}
+    <div className="text-black flex items-center justify-center">
+      <button
+        onClick={handleBuyNow}
+        className="bg-[#9AB898] text-white md:mr-3 mb-1 md:mb-0 md:w-32 rounded-xl border-[1px] py-2 px-4 border-[#9AB898] border-solid"
+      >
+        Buy now
+      </button>
+
+      <button
+        onClick={handleAddToCart}
+        className="border-[1px] text-white rounded-xl md:w-32 bg-[#9AB898] py-2 px-4 ml-2"
+      >
+        Add to cart
+      </button>
+    </div>
+
+  </div>
+
+
+    </div>
+
+    {/* Right - Coming Soon */}
+    <div className="hidden md:flex flex-col items-center justify-center text-center ml-24">
+      <h2 className="text-2xl lg:text-3xl font-bold text-black mb-6">
+        Skin Care & Hair Care
+      </h2>
+
+      <Image
+        src="/images/coming-soon.png"
+        alt="Coming Soon"
+        width={10020}
+        height={380}
+        className="w-full max-w-[480px]"
+      />
+    </div>
+
+  </div>
+</div>
 
         {/* How It Works Section */}
         <div className="w-full lg:w-[70%] mx-auto px-10 md:px-0">
